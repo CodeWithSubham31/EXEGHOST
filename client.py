@@ -6,6 +6,7 @@ import webbrowser as wb
 from plyer import notification
 import shutil
 import sys
+import win32com.client
 
 s = socket.socket()
 
@@ -29,15 +30,29 @@ def show_alert(alert):
     )
 
 def add_to_startup():
-    startup_path = os.path.join(os.getenv('APPDATA'), 
+    startup_path = os.path.join(os.getenv('APPDATA'),
         r'Microsoft\Windows\Start Menu\Programs\Startup')
 
-    exe_path = sys.executable
-    file_name = os.path.basename(exe_path)
-    destination = os.path.join(startup_path, file_name)
+    # exe path detect
+    if getattr(sys, 'frozen', False):
+        exe_path = sys.executable
+    else:
+        exe_path = os.path.abspath(__file__)
 
-    if not os.path.exists(destination):
-        shutil.copy(exe_path, destination)
+    shortcut_path = os.path.join(startup_path, "Jarvis.lnk")
+
+    if not os.path.exists(shortcut_path):
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(shortcut_path)
+
+        shortcut.Targetpath = exe_path
+        shortcut.WorkingDirectory = os.path.dirname(exe_path)
+        shortcut.IconLocation = exe_path
+        shortcut.save()
+
+        print("Shortcut created in startup ")
+    else:
+        print("Already exists")
 
 
 if __name__ =="__main__":
