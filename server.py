@@ -1,11 +1,11 @@
-import socket
+import socket 
 
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    HOST = "192.168.0.141"
+    HOST = "0.0.0.0"
     PORT = 8000
 
     s.bind((HOST, PORT))
@@ -31,22 +31,13 @@ while True:
             conn.send(cmd.encode())
             print("Connection Disconnected")
             break
-
-        elif cmd == "shutdown":
-            conn.send(cmd.encode())
-            print("system shutdown")
-
-        elif cmd == "restart":
-            conn.send(cmd.encode())
-            print("system restart")
-        
-        
+            
         else:
+            print("task Completed")
             conn.send(cmd.encode())
-
             sysmsg = conn.recv(5000).decode()
-
             print(sysmsg)
+
 
     except Exception as f:
         print(f"Connection Error : {f}")
