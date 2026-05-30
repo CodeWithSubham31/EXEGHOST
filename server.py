@@ -87,4 +87,4 @@ while True:
 
     except Exception as f:
         print(f"Connection Error : {f}")
-        break
+        continue
